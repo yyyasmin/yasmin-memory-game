@@ -1,10 +1,28 @@
 const server = require('express')();
 const http = require('http').createServer(server);
-const io = require('socket.io')(http);
+
+//const io = require('socket.io')(http);	
+// FROM https://phasertutorials.com/hosting-your-multiplayer-phaser-game-on-heroku/
+const io = process.env.PORT || 
+require("socket.io")(http, {   // CROSS CONNECTION PROBLEM
+    
+
+    cors: {
+
+        origin: "http://localhost:8080",
+
+        methods: ["GET", "POST"]
+
+    }
+
+});
+
 let players = [];
+
 
 io.on('connection', function (socket) {
     console.log('A user connected: ' + socket.id);
+
 
     players.push(socket.id);
 
@@ -52,6 +70,15 @@ io.on('connection', function (socket) {
     });
 });
 
+/************************************/
 http.listen(3000, function () {
     console.log('Server started!');
 });
+/****************************************/
+
+// FROM https://phasertutorials.com/hosting-your-multiplayer-phaser-game-on-heroku/
+/***************************************************************
+server.listen(port, function () {
+    console.log(`Listening on ${server.address().port}`);
+  });
+********************************************************************/
