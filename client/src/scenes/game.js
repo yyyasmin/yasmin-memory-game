@@ -77,14 +77,19 @@ export default class Game extends Phaser.Scene {
 
     create() {
 
+		this.deploy = 1   //  0 ==> FOR DEVELOPMENT MODE     1 ==> FOR PRODUCTION MODE
+		
         this.isPlayerA = false;
         this.opponentCards = [];
  
         this.cardsArray = []
 
         let self = this;
-
-        this.socket = io('http://localhost:3000');
+		
+		if ( this.deploy == 1 )
+			this.socket = io('https://yasmin-memory-game.herokuapp.com/');
+		else
+			this.socket = io('http://localhost:3000');
  
         this.socket.on('connect', function () {
             //console.log('Connected!');
