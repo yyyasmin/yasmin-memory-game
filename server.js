@@ -1,43 +1,42 @@
-const server = require('express')();
-const http = require('http').createServer(server);
+// FROM https://www.youtube.com/watch?v=rUSjVri4I30&t=1706s
+// FROM https://stackoverflow.com/questions/25000275/socket-io-error-hooking-into-express-js
 
-let deploy = 1   // 0 => FOR DEVELOPMENT     1 => FOR PRODUCTION
+const express = require('express')
+const server = express()
 
-//const io = require('socket.io')(http);	
-// FROM https://phasertutorials.com/hosting-your-multiplayer-phaser-game-on-heroku/
-const PORT = process.env.PORT || 
-require("socket.io")(http, {   // CROSS CONNECTION PROBLEM
-    
-
-    cors: {
-
-        origin: "http://localhost:8080",
-
-        methods: ["GET", "POST"]
-
-    }
-	
-
-});
-
-let io = PORT
+const cors = require('cors')
+const path = require('path')
+const serveStatic = require('serve-static')
 
 
-if ( deploy == 1 )  {   // PRODUCTION MODE FROM https://github.com/heroku-examples/node-socket.io/blob/main/server.js
 
-	const express = require('express');
-    const app = express();
-    const server = app.listen(PORT, () => {
-        console.log("Listening on PORT: " + PORT);
-    });
-    let deploy_io = require('socket.io')(server);
-
-    io = deploy_io  // MAKE IO DEPLOY VERSION
-
-}   // PRODUCTION MODE FROM https://github.com/heroku-examples/node-socket.io/blob/main/server.js
+	// FROM https://stackoverflow.com/questions/25000275/socket-io-error-hooking-into-express-js
+	//const port = 3000,
+	//app = require('express')(),
 
 
-let players = [];
+	// PRODUCTION MODE FROM https://github.com/heroku-examples/node-socket.io/blob/main/server.js
+	// DEPLOY MODE = 1
+	server.use(express.json())
+	server.use(cors())
+	server.use(serveStatic(__dirname + '/client/dist'))
+	//let deploy_io = require('socket.io')(server);
+
+	io = require('socket.io')();
+
+	// Your normal express routes go here...
+
+	// Launching app
+	const PORT = process.env.PORT || 3000
+
+	const serverInstance = server.listen(PORT, () => {
+		console.log('SERVER STARTED RUNNING AT PORT ' + PORT);
+	});
+
+	// Initializing socket.io
+	io.attach(serverInstance);
+
+	let players = [];
 
 
 io.on('connection', function (socket) {
@@ -91,15 +90,3 @@ io.on('connection', function (socket) {
 
 
 });
-
-
-    
-if ( deploy == 0 )  {   // DEVELOPMWNT MODE 
-
-	http.listen(3000, function () {
-		console.log('Server started!');
-	});
-
-}  // DEVELOPMWNT MODE 
-
-
