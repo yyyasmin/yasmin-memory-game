@@ -1,8 +1,5 @@
 import io from 'socket.io-client';
 import Card from '../helpers/card';
-import Easing from 'easing-functions'
-//import Quad from "phaser";
-
 
 export default class Game extends Phaser.Scene {
     constructor() {
@@ -13,66 +10,40 @@ export default class Game extends Phaser.Scene {
 
     preload() {
 
-        this.rowss = 2
-        this.colss = 2
-        this.imagePath = 'src/assets/myFlip/'
-
         this.backImageName = 'y_rainbow'
 
         this.imageNames = [
-            'animal_a',
-            'animal_b' ,
-            'boring_joke_a',
-            'boring_joke_b',
-
-            /***********************
-             
-            'duck_a',
-            'duck_b',
-            'esher_a',
-            'esher_b',
-            'eyes_a',
-            'eyes_b',
-            'joke_a',
-            'joke_b',
-            'mimica_a',
-            'mimica_b',
-            'move_a',
-            'move_b',
-            'play_a',
-            'play_b',
-            'proff_a',
-            'proff_b'
-
-            *****************************/
+            'y_rainbow',
+            'animal1',
+            'animal2' ,
+            'esher1',
+            'esher2',
+            'boringjoke1',
+            'boringjoke2',
+            'duck1a',
+            'duck2a',
+            'esher2',
+            'esher2',
+            'eyes1',
+            'eyes2',
+            'joke1',
+            'joke2',
+            'mimica1',
+            'mimica2',
+            'move1',
+            'move2',
+            'play1',
+            'play2',
+            'proff1',
+            'proff1',
         ]
 
-        let imageFullPath
-        let frontImageName
-        let backtImageName
-
-        for (let i=0; i<this.imageNames.length; i++)   { // FROM chrome-error://chromewebdata
-            frontImageName = this.imagePath + this.imageNames[i] + '0' + '.PNG'
-            this.load.image(this.imageNames[i]+'0', frontImageName)
-
-            backtImageName = this.imagePath + this.imageNames[i] + '1' + '.PNG'
-            this.load.image(this.imageNames[i]+'1', backtImageName)
-        }
-
-        
-        // FROM https://rexrainbow.github.io/phaser3-rex-notes/docs/site/perspective-card/
-        this.load.plugin('rexperspectiveimageplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexperspectiveimageplugin.min.js', true);
-        
-        
-        //  FROM https://rexrainbow.github.io/phaser3-rex-notes/docs/site/gridalign/
-        this.load.plugin('rexgridalignplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexgridalignplugin.min.js', true);
-
-       
-       
-        // FROM https://codepen.io/rexrainbow/pen/pobEQLN?editors=1010
-
-    }
-
+        let loadStrFace
+        let loadStrBack = this.load.image(this.backImageName, 'src/assets/communication/'+ this.backImageName + '.PNG')
+        for (let i=0; i<this.imageNames.length; i++) 
+            loadStrFace = this.load.image(this.imageNames[i], 'src/assets/communication/'+ this.imageNames[i] + '.PNG')
+   
+	}
 
 
     create() {
@@ -80,6 +51,9 @@ export default class Game extends Phaser.Scene {
         this.isPlayerA = false;
         this.opponentCards = [];
  
+        this.rowss = 2
+        this.colss = 4
+
         this.cardsArray = []
 
         let self = this;
@@ -87,140 +61,133 @@ export default class Game extends Phaser.Scene {
         this.socket = io('http://localhost:3000');
  
         this.socket.on('connect', function () {
-            //console.log('Connected!');
+            console.log('Connected!');
         });
 
 
         this.setCards = () =>  {
 
-            let idx = 0
-
-            for (let row=0; row<this.rowss; row++)  {   // FROM chrome-error://chromewebdata
+            let idx=0
+            for (let row=0; row<this.rowss; row++)  {
                 for(let col=0; col<this.colss; col++)  {
 
                     let card = new Card()
-                    let imageName = this.imageNames[idx]
-                    card.set(col, row, imageName)
+                  
+                    card.setImageName(this.imageNames[idx])
+					card.setIdx(col, row)
 
-                    let frontImageName = this.getFrontImageName(imageName)
-                    let backImageName = this.getBackImageName(imageName)
-                    let myCard = this.createMyCard (card, frontImageName, backImageName)  // FROM https://codepen.io/rexrainbow/pen/pobEQLN?editors=1010
-                    
-                    card.setMyCard(myCard)
+                    card.setSprite(this.createNewSprite(card, this.imageNames[idx]))
 
-
-
+                    if ( this.imageNames[idx] == this.backImageName)
+                        card.isBackCard = true
 
                     this.cardsArray.push( {
-                        card: card,
+                        card: card
                     } )
 
                     idx++
  
 				}
             }
+
         }
 
+        this.createNewSprite = (card, imageName) =>  {
 
-        this.getFrontImageName = (imageName) =>  {
-            return imageName + '0'
-        }
-
-        this.getBackImageName = (imageName) =>  {
-            return imageName + '1'
-        }
-        
-
-        
-        // FROM https://codepen.io/rexrainbow/pen/pobEQLN?editors=1010
-        this.createMyCard = (card, imageName, backImageName)  => {
-            
-            let cardIdx  =  card.getIdx()
-            
-            let myCard =  this.add.rexPerspectiveCard(card.getX(), card.getY(), {
-                front: { key: imageName },
-                back:  { key: backImageName },
-                face: 'back',
-
-                flip: {            
-                    frontToBack: 'right',
-                    backToFront: 'left',
-                    duration: 1000,
-                    ease: 'Cubic'
-                }
-            })
-            
-            myCard.
+            let cardSprite = this.physics.add.sprite(card.getX(), card.getY(), imageName).
             setSize(card.getWidth(), card.getHeight())
-            .setInteractive().              
+           .setInteractive().              
             setVisible(true)
+            cardSprite.inputEnabled=true;
+            cardSprite.enabled=true;
+            // FROM https://stackoverflow.com/questions/48053064/phaser-sprite-animation-wont-play
+            //this.cardFlipAnimation(card, cardSprite, imageName)
 
-            //myCard.inputEnabled=true;
-            //myCard.enabled=true;
+            cardSprite.on('pointerdown', function () {
+                self.socket.emit('flipfromclient', card.getIdx(), cardSprite);            
+            }, this);
 
-            myCard.on('pointerdown', function () {  
-                self.socket.emit('flipMyCardFromClient', card.getIdx());            
-            }, this);        
-               
-            console.log( myCard, myCard.flip )
+            return cardSprite
 
-            return myCard
         }
- 
-        
-        // FROM https://codepen.io/rexrainbow/pen/pobEQLN?editors=1010
-        this.flipMyCard = (cardIdx) =>  {
 
+
+        // FROM https://stackoverflow.com/questions/55495662/how-to-make-card-flip-animation-in-phaser-3
+        this.flipCard = (cardIdx, sprite) =>  {
+            this.cardFlipAnimation(cardIdx, sprite)
+            this.cardsArray[cardIdx].faceUp = !this.cardsArray[cardIdx].faceUp
+        }
+
+
+        this.cardFlipAnimation = (cardIdx, sprite) =>  {
 
             let card = this.cardsArray[cardIdx].card
             let imageName = card.getImageName()
-            let xPosition = card.getX(),  yPosition = card.getY()
 
-            let cardSprite = card.getMyCard()
+            // FROM https://www.html5gamedevs.com/topic/36016-make-animation-from-separate-files-ie-not-spritesheet/
+      
+            let image_1 = card.faceUp ? imageName : this.backImageName
+            let image_2 = card.faceUp ? this.backImageName :  imageName
 
-            //console.log("IIIIINNNN FFFFFFFFFFFLIP-MY-CARD-SPRITE:", cardSprite)
+            let cardAnimationKey =  'myFlipCard' + String(cardIdx)
 
-            //console.log("IN FLIP_MY-CARD FUNC  THIS>FLIP: ", cardSprite.flip )
+            console.log(cardAnimationKey)
 
-            console.log('FLIPPING  LEFT: back => front')
-            //cardSprite.flip.flipLeft();
+            this.anims.create({
+                key: cardAnimationKey,
+                frames: [
+                    { key: image_1, frame: null },
+                    { key: image_2, frame: null, duration: 20 }
+                ],
+                frameRate: 5,
+                repeat: 0
+            });
 
-            if (cardSprite.localX <= (this.width / 2))  {
-                console.log('FLIPPING  LEFT: back => front')
-                cardSprite.flip.flipLeft();
-            } 
-            else  {
-                console.log('FLIPPING  RIGHT: front => back')
-                cardSprite.flip.flipRight();
-             }
 
-            // this.flip.flip();
-        }                      
-                
+            this.cardsArray[cardIdx].card.getSprite().play(cardAnimationKey);
+
+
+            // FROM https://stackoverflow.com/questions/55495662/how-to-make-card-flip-animation-in-phaser-3
+
+                // scale horizontally to disappear
+                var tween1 = this.scene.tweens.add({
+                    targets: image_1,
+                    scaleX: 0.01,
+                    ease: 'Linear',
+                    duration: 300,
+                    repeat: 0,
+                    yoyo: false
+                });
+
+                tween1.onComplete.add(function(){this.onTurnCard(cartaObj);}, this);
+
+                onTurnCard: function(card) {
+                    // set card face somehow
+                    card.frameName = 'HeartQueen'; // ?
+
+                    // scale horizontally to re-appear
+                    var twn = this.scene.tweens.add({
+                        targets: card,
+                        scaleX: 1.0,
+                        ease: 'Linear',
+                        duration: 300,
+                        repeat: 0,
+                        yoyo: false
+                    });
+            
+            // FROM https://stackoverflow.com/questions/55495662/how-to-make-card-flip-animation-in-phaser-3
+
+        }
+
 
         this.socket.on('isPlayerA', function () {
             self.isPlayerA = true;
         })
 
         this.socket.on('flipfromserver', function (cardIdx, sprite) {
-            //console.log('IN flipfromserver--- FROM SERVER  111') 
-
             self.flipCard(cardIdx, sprite)
         })
 
-        this.socket.on('flipByAnimFramesFromServer', function (cardIdx, sprite) {
-            //console.log('IN flipByAnimFramesFromServer--- FROM SERVER 222  ')
-
-            self.flipCard(cardIdx, sprite)
-        })
-
-        this.socket.on('flipMyCardFromServer', function( cardIdx ) {
-
-            //console.log('IN flipMyCardF--- FROM SERVER   ', cardIdx )
-            //console.log('IN flipMyCardF--- FROM SERVER   TTHHIISS: BEFOR CALING FUNC   333', this)            
-
-            self.flipMyCard( cardIdx ) 
-        })
 
         this.socket.on('setCardss', function () {
             self.setCards()
