@@ -90,9 +90,13 @@ export default class Game extends Phaser.Scene {
             console.log("deploy=1")
 			this.socket = io('https://yasmin-memory-game.herokuapp.com/');
         }
-        else
+        else  {
+			console.log("deploy=0")
 			this.socket = io('http://localhost:3000');
- 
+		}
+		
+		print("SSSSSSSSSSSSSSOOOOOOOOOOOOOOOCKET on CLENT: :", this.socket)
+		
         this.socket.on('connect', function () {
             //console.log('Connected!');
         });
