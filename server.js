@@ -8,8 +8,6 @@ const cors = require('cors')
 const path = require('path')
 const serveStatic = require('serve-static')
 
-
-
 	// FROM https://stackoverflow.com/questions/25000275/socket-io-error-hooking-into-express-js
 	//const port = 3000,
 	//app = require('express')(),
