@@ -15,7 +15,7 @@ export default class Game extends Phaser.Scene {
 
         this.rowss = 2
         this.colss = 2
-        this.imagePath = 'src/assets/myFlip/'
+        // this.imagePath = 'assets/'   MOVED TO INDEX As BaseUrl
 
         this.backImageName = 'y_rainbow'
 
@@ -52,24 +52,18 @@ export default class Game extends Phaser.Scene {
         let backtImageName
 
         for (let i=0; i<this.imageNames.length; i++)   { // FROM chrome-error://chromewebdata
-            frontImageName = this.imagePath + this.imageNames[i] + '0' + '.PNG'
-            this.load.image(this.imageNames[i]+'0', frontImageName)
+		
+            this.load.image(this.imageNames[i]+'0', this.imageNames[i] + '0' + '.PNG')
 
-            backtImageName = this.imagePath + this.imageNames[i] + '1' + '.PNG'
-            this.load.image(this.imageNames[i]+'1', backtImageName)
+            //this.load.image(this.imageNames[i]+'1', this.imageNames[i] + '1' + '.PNG')
+            this.load.image(this.imageNames[i]+'1', this.imageNames[i] + '1' + '.png')
         }
-
-        
+		
         // FROM https://rexrainbow.github.io/phaser3-rex-notes/docs/site/perspective-card/
         this.load.plugin('rexperspectiveimageplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexperspectiveimageplugin.min.js', true);
-        
-        
+                
         //  FROM https://rexrainbow.github.io/phaser3-rex-notes/docs/site/gridalign/
         this.load.plugin('rexgridalignplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexgridalignplugin.min.js', true);
-
-       
-       
-        // FROM https://codepen.io/rexrainbow/pen/pobEQLN?editors=1010
 
     }
 
@@ -86,17 +80,15 @@ export default class Game extends Phaser.Scene {
 
         let self = this;
 		
-		if ( this.deploy == 1 )  {
-            console.log("deploy=1")
-			this.socket = io('https://yasmin-memory-game.herokuapp.com/');
-        }
-        else  {
-			console.log("deploy=0")
-			this.socket = io('http://localhost:3000');
-		}
+		console.log("DEPLOY=", this.deploy)
+
+		let PORT = (this.deploy == 1) ? 'https://yasmin-memory-game-server.herokuapp.com/'  :  'http://localhost:3000'	
 		
-		print("SSSSSSSSSSSSSSOOOOOOOOOOOOOOOCKET on CLENT: :", this.socket)
-		
+		console.log("CLIENT HAS CONNECTED IN ", PORT)
+				
+        this.socket = io(PORT)
+			
+			
         this.socket.on('connect', function () {
             //console.log('Connected!');
         });
@@ -114,7 +106,10 @@ export default class Game extends Phaser.Scene {
                     card.set(col, row, imageName)
 
                     let frontImageName = this.getFrontImageName(imageName)
-                    let backImageName = this.getBackImageName(imageName)
+                    let backImageName =  this.getBackImageName(imageName)
+					
+					console.log(frontImageName, backImageName)
+					
                     let myCard = this.createMyCard (card, frontImageName, backImageName)  // FROM https://codepen.io/rexrainbow/pen/pobEQLN?editors=1010
                     
                     card.setMyCard(myCard)

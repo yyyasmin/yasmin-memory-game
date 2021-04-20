@@ -14,10 +14,12 @@ const config = {
 			gravity: { y: 0 }
 		}
 	},
-    
-    scene: [
-        Game
-    ]
+		
+	// FROM https://www.html5gamedevs.com/topic/38135-is-there-a-way-to-load-images-into-a-loading-scene-in-phaser-3-my-images-keep-failing-to-load/
+	loader: {
+			baseURL: 'assets/'
+		},
+	scene: [Game]
 };
 
 const game = new Phaser.Game(config);
